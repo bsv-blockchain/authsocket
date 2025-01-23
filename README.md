@@ -4,16 +4,15 @@
 **Table of Contents**
 1. [Overview](#overview)  
 2. [Installation](#installation)  
-3. [Architecture & File Structure](#architecture--file-structure)  
-4. [Usage](#usage)  
+3. [Usage](#usage)  
    - [Server-Side Setup](#server-side-setup)
    - [Client-Side Setup](#client-side-setup)
    - [Example Communication](#example-communication)
-5. [Detailed Explanations](#detailed-explanations)
+4. [Detailed Explanations](#detailed-explanations)
    - [AuthSocketServer & AuthSocket (Server)](#authsocketserver--authsocket-server)
    - [SocketServerTransport & SocketClientTransport](#socketservertransport--socketclienttransport)
    - [Client-Side AuthSocketClient (AuthSocketClient function)](#client-side-authsocketclient-AuthSocketClient-function)
-6. [License](#license)
+5. [License](#license)
 
 ---
 
@@ -99,6 +98,7 @@ server.listen(port, () => {
 An example **client** code that wraps `socket.io-client`:
 
 ```ts
+// clientApp.ts
 import { AuthSocketClient } from '@bsv/authsocket'
 import { ProtoWallet } from '@bsv/sdk' // client BRC-103 compliant wallet
 
@@ -143,7 +143,7 @@ Once the server is running on `localhost:3000`, and the client runs `clientApp.t
   ```
 - **Client log**:
   ```
-  Client connected, ID: ...
+  Connected to server with socket ID: ...
   Received chatMessage from server: { from: "...", text: "Hello from client!" }
   ```
 
