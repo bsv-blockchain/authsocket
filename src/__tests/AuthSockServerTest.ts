@@ -1,10 +1,8 @@
 import { createServer } from 'http'
-import { AuthSocketServer } from '../AuthSocketServer'
-import { ProtoWallet } from '../../wallet'
-import { PrivateKey } from '../../primitives'
+import { AuthSocketClient, AuthSocketServer } from '../index'
+import { ProtoWallet, PrivateKey } from '@bsv/sdk'
 
 import * as crypto from 'crypto'
-import { authIO } from '../clients/AuthSocketClient'
 global.self = { crypto }
 
 const httpServer = createServer()
@@ -17,13 +15,13 @@ const io = new AuthSocketServer(httpServer, {
 
 // Typical usage:
 io.on('connection', (socket) => {
-  console.log('A user connected with socket ID', socket.id)
+  console.log('New Authenticated Connection -> socket ID:', socket.id)
 
   // Let's listen for a chatMessage
   socket.on('chatMessage', (msg) => {
-    console.log('Message from client:', msg)
+    console.log('Received message from client:', msg)
     // broadcast to all clients:
-    io.emit('chatMessage', {
+    socket.emit('chatMessage', {
       from: socket.id,
       text: `Hello, client!`
     })
@@ -44,7 +42,7 @@ httpServer.listen(port, () => {
 const clientWallet = new ProtoWallet(PrivateKey.fromRandom())
 
 // 2. Connect to the server with the newly created wallet
-const socket = authIO('http://localhost:3000', {
+const socket = AuthSocketClient('http://localhost:3000', {
   wallet: clientWallet
 })
 

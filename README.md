@@ -12,23 +12,23 @@
 5. [Detailed Explanations](#detailed-explanations)
    - [AuthSocketServer & AuthSocket (Server)](#authsocketserver--authsocket-server)
    - [SocketServerTransport & SocketClientTransport](#socketservertransport--socketclienttransport)
-   - [Client-Side AuthSocketClient (authIO function)](#client-side-authsocketclient-authio-function)
+   - [Client-Side AuthSocketClient (AuthSocketClient function)](#client-side-authsocketclient-AuthSocketClient-function)
 6. [License](#license)
 
 ---
 
 ## Overview
 
-This repository provides a **drop-in** solution for **Socket.IO** with **BRC-103** mutual authentication. In other words, you can write code like typical Socket.IO (`.on(...)`, `.emit(...)`) while under the hood each message is:
+This repository provides a **drop-in** solution for **Socket.IO** with [BRC-103](https://github.com/bitcoin-sv/BRCs/blob/master/peer-to-peer/0103.md) mutual authentication. In other words, you can write code like typical Socket.IO (`.on(...)`, `.emit(...)`) while under the hood each message is:
 
 - **Signed** by the sender using BRC-103 message format,  
 - **Verified** by the receiver, ensuring mutual authenticity,  
-- Optionally uses **selective certificates** if needed by BRC-103.
+- Optionally uses **selective certificates** if needed.
 
 The code includes:
 
-1. A **server-side** library (`AuthSocketServer`, `AuthSocket`, `SocketServerTransport`) that wraps the raw Socket.IO server and enforces BRC-103 for each connected client.
-2. A **client-side** library (`authIO`, `SocketClientTransport`, `AuthSocketClient`) that wraps the `socket.io-client` library, ensuring messages are signed with a local `Wallet` (BRC-103 style).
+1. A **server-side** library (`AuthSocketServer`, `SocketServerTransport`) that wraps the raw Socket.IO server and enforces BRC-103 for each connected client.
+2. A **client-side** library (`AuthSocketClient`, `SocketClientTransport`) that wraps the `socket.io-client` library, ensuring messages are signed with a local `Wallet` (BRC-103 style).
 
 Once both sides are properly configured, you get a secure, authenticated channel with minimal changes to your usual Socket.IO code.
 
@@ -36,19 +36,11 @@ Once both sides are properly configured, you get a secure, authenticated channel
 
 ## Installation
 
-1. **Install** the dependencies you need:
+1. **Install** the dependencies
    ```bash
-   npm install socket.io socket.io-client @bsv/sdk
+   npm install
    ```
-   or 
-   ```bash
-   yarn add socket.io socket.io-client @bsv/sdk
-   ```
-   (Adjust package names depending on your actual environment.)
-
-2. **Include** the provided code files in your project, e.g. in `src/auth-socket/`.
-
-3. Make sure you also have a **BRC-103**-compatible `Wallet` implementation from `@bsv/sdk` or your own fork that can sign and verify messages.
+3. Make sure you also have a [BRC-103](https://github.com/bitcoin-sv/BRCs/blob/master/peer-to-peer/0103.md)-compatible `Wallet` implementation from `@bsv/sdk` or your own fork that can sign and verify messages in a compatible manner.
 
 ---
 
@@ -59,20 +51,18 @@ Once both sides are properly configured, you get a secure, authenticated channel
 An example **server** using Express + HTTP + `AuthSocketServer`:
 
 ```ts
-// server.ts
 import express from 'express'
 import http from 'http'
-import { AuthSocketServer } from './server/AuthSocketServer'
-import { SomeBRCWallet } from './myWalletImplementation' // your BRC-103 wallet
+import { AuthSocketServer } from '@bsv/authsocket'
+import { ProtoWallet } from '@bsv/sdk' // your BRC-103 compatible wallet
 
 const app = express()
 const server = http.createServer(app)
 const port = 3000
 
-// Provide a BRC-103-compatible wallet
-const serverWallet = new SomeBRCWallet('my-private-key-hex')
+const serverWallet = new ProtoWallet('my-private-key-hex')
 
-const authIo = new AuthSocketServer(server, {
+const io = new AuthSocketServer(server, {
   wallet: serverWallet,
   cors: {
     origin: '*'
@@ -80,13 +70,14 @@ const authIo = new AuthSocketServer(server, {
 })
 
 // Classic usage
-authIo.on('connection', (socket) => {
+io.on('connection', (socket) => {
   console.log('New Authenticated Connection -> socket ID:', socket.id)
 
-  socket.on('chatMessage', (data) => {
-    console.log('Received chatMessage from client:', data)
-    // Echo or broadcast
-    authIo.emit('chatMessage', { from: socket.id, text: data.text })
+  // Listen for chat messages
+  socket.on('chatMessage', (msg) => {
+    console.log('Received message from client:', msg)
+    // Reply to the client
+    socket.emit('chatMessage', { from: socket.id, text: 'Hello, client!' })
   })
 
   socket.on('disconnect', () => {
@@ -108,28 +99,36 @@ server.listen(port, () => {
 An example **client** code that wraps `socket.io-client`:
 
 ```ts
-// clientApp.ts
-import { authIO } from './client/authIO'
-import { SomeClientBRCWallet } from './myWalletImplementation' // client BRC-103 wallet
+import { AuthSocketClient } from '@bsv/authsocket'
+import { ProtoWallet } from '@bsv/sdk' // client BRC-103 compliant wallet
 
-const clientWallet = new SomeClientBRCWallet('client-private-key-hex')
+const clientWallet = new ProtoWallet('client-private-key-hex')
 
-const socket = authIO('http://localhost:3000', {
-  wallet: clientWallet,
-  managerOptions: { transports: ['websocket'] }
+const socket = AuthSocketClient('http://localhost:3000', {
+  wallet: clientWallet
 })
 
+//  Socket event listeners
 socket.on('connect', () => {
-  console.log('Client connected, ID:', socket.id)
-  socket.emit('chatMessage', { text: 'Hello from client!' })
+  console.log('Connected to server with socket ID:', socket.id)
 })
 
-socket.on('chatMessage', (data) => {
-  console.log('Received chatMessage from server:', data)
+socket.on('disconnect', () => {
+  console.log('Disconnected from server')
+})
+
+socket.on('chatMessage', (msg) => {
+  console.log('Received chatMessage from server:', msg)
+  // TODO: Add a reply :)
+})
+
+// Example message emit
+socket.emit('chatMessage', {
+  text: 'Hello server! - from client'
 })
 ```
 
-1. `authIO(...)` creates a BRC-103 transport, a `Peer`, and a client wrapper that mimics normal Socket.IO usage (`on`, `emit`, etc.).  
+1. `AuthSocketClient(...)` creates a BRC-103 transport, a `Peer`, and a client wrapper that mimics normal Socket.IO usage (`on`, `emit`, etc.).  
 2. The handshake automatically happens behind the scenes the first time a message is sent or received.  
 
 ### Example Communication
@@ -173,11 +172,11 @@ Both sides have effectively performed a BRC-103 handshake, verified messages, an
 - **Client side**: `SocketClientTransport` listens for `socket.on('authMessage')` from a **Socket.IO** client `IoClientSocket`.  
 - This means both sides exchange `AuthMessage` objects on a special `'authMessage'` event, enabling the `Peer` class to do its BRC-103 logic (handshake, signatures, certificate exchange, etc.).
 
-### Client-Side AuthSocketClient (authIO function)
+### Client-Side AuthSocketClient (AuthSocketClient function)
 
-- The `authIO(...)` function wraps the **client** usage. Developers do:
+- The `AuthSocketClient(...)` function wraps the **client** usage. Developers do:
   ```ts
-  const socket = authIO('https://myserver.com', { wallet: myWallet })
+  const socket = AuthSocketClient('https://myserver.com', { wallet: myWallet })
   socket.on('connect', () => { ... })
   socket.emit('hello', { text: 'Hi' })
   ```

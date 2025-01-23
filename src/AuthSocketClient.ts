@@ -3,10 +3,10 @@ import { RequestedCertificateSet, SessionManager, Peer, Wallet } from '@bsv/sdk'
 import { SocketClientTransport } from './SocketClientTransport.js'
 
 /**
- * This class wraps a Socket.IO client connection with BRC-103 mutual authentication,
+ * Internal class that wraps a Socket.IO client connection with BRC-103 mutual authentication,
  * enabling secure and identity-aware communication with a server.
  */
-class AuthSocketClient {
+class AuthSocketClientImpl {
   public connected = false
   public id: string = ''
   public serverIdentityKey: string | undefined
@@ -46,7 +46,7 @@ class AuthSocketClient {
     })
   }
 
-  on(eventName: string, callback: (data?: any) => void): AuthSocketClient {
+  on(eventName: string, callback: (data?: any) => void): this {
     let arr = this.eventCallbacks.get(eventName)
     if (!arr) {
       arr = []
@@ -56,7 +56,7 @@ class AuthSocketClient {
     return this
   }
 
-  emit(eventName: string, data: any): AuthSocketClient {
+  emit(eventName: string, data: any): this {
     // We sign a BRC-103 "general" message and send to the server
     // via peer.toPeer
     const encoded = this.encodeEventPayload(eventName, data)
@@ -95,9 +95,12 @@ class AuthSocketClient {
 }
 
 /**
- * The main factory function that devs call to get a BRC-103–enabled socket.
+ * Factory function for creating a new AuthSocketClientImpl instance.
+ * 
+ * @param url  - The server URL
+ * @param opts - Contains wallet, requested certificates, and other optional settings
  */
-export function authIO(
+export function AuthSocketClient(
   url: string,
   opts: {
     wallet: Wallet
@@ -105,7 +108,7 @@ export function authIO(
     sessionManager?: SessionManager
     managerOptions?: Partial<ManagerOptions & SocketOptions>
   }
-): AuthSocketClient {
+): AuthSocketClientImpl {
   // 1) Create real socket.io-client connection
   const socket = realIo(url, opts.managerOptions)
 
@@ -120,6 +123,6 @@ export function authIO(
     opts.sessionManager
   )
 
-  // 4) Create our client wrapper
-  return new AuthSocketClient(socket, peer)
+  // 4) Return our new AuthSocketClientImpl 
+  return new AuthSocketClientImpl(socket, peer)
 }
