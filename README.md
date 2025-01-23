@@ -186,13 +186,13 @@ Both sides have effectively performed a BRC-103 handshake, verified messages, an
   3. Creates a `Peer` with your local BRC-103 wallet.  
   4. Creates an `AuthSocketClient` (or similar) which re-dispatches inbound `'general'` messages and sends new ones with `.emit(...)`.  
 
-The result is an **API** almost identical to standard `socket.io-client`, except everything is cryptographically authenticated.
+The result is an [API](./API.md) almost identical to standard `socket.io-client`, except everything is cryptographically authenticated.
 
 ---
 
 ## License
 
-See LICENSE.md
+See [LICENSE.txt](./LICENSE.txt)
 
 ---
 
