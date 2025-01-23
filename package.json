@@ -1,6 +1,9 @@
 {
   "name": "@bsv/authsocket",
   "version": "1.0.0",
+  "publishConfig": {
+    "access": "public"
+  },
   "description": "Mutually Authenticated Web Sockets",
   "type": "module",
   "main": "dist/cjs/mod.js",
