@@ -1,10 +1,10 @@
 import { Server as HttpServer } from 'http'
 import { ServerOptions, Server as IoServer, Socket as IoSocket } from "socket.io"
-import { Wallet, Peer, SessionManager } from "@bsv/sdk"
+import { WalletInterface, Peer, SessionManager } from "@bsv/sdk"
 import { SocketServerTransport } from "./SocketServerTransport.js"
 
 export interface AuthSocketServerOptions extends Partial<ServerOptions> {
-  wallet: Wallet // The server's wallet for signing
+  wallet: WalletInterface // The server's wallet for signing
   requestedCertificates?: any // e.g. RequestedCertificateSet
   sessionManager?: SessionManager
 }

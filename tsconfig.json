@@ -12,6 +12,9 @@
     },
     {
       "path": "tsconfig.types.json"
+    },
+    {
+      "path": "tsconfig.client.json"
     }
   ]
 }

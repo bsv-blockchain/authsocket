@@ -1,5 +1,5 @@
 import { io as realIo, Socket as IoClientSocket, ManagerOptions, SocketOptions } from 'socket.io-client'
-import { RequestedCertificateSet, SessionManager, Peer, Wallet } from '@bsv/sdk'
+import { RequestedCertificateSet, SessionManager, Peer, WalletInterface } from '@bsv/sdk'
 import { SocketClientTransport } from './SocketClientTransport.js'
 
 /**
@@ -103,7 +103,7 @@ class AuthSocketClientImpl {
 export function AuthSocketClient(
   url: string,
   opts: {
-    wallet: Wallet
+    wallet: WalletInterface
     requestedCertificates?: RequestedCertificateSet
     sessionManager?: SessionManager
     managerOptions?: Partial<ManagerOptions & SocketOptions>
