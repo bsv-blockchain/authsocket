@@ -19,6 +19,13 @@
   "workspaces": [
     "src/client"
   ],
+  "exports": {
+    ".": {
+      "import": "./dist/esm/mod.js",
+      "require": "./dist/cjs/mod.js"
+    },
+    "./package.json": "./package.json"
+  },
   "scripts": {
     "test": "npm run build && jest",
     "test:watch": "npm run build && jest --watch",
