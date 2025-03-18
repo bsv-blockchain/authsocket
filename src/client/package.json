@@ -1,14 +1,12 @@
 {
   "name": "@bsv/authsocket-client",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "publishConfig": {
     "access": "public"
   },
   "description": "Mutually Authenticated Web Sockets Client",
   "type": "module",
-  "main": "./dist/cjs/index.js",
-  "module": "./dist/esm/index.js",
-  "types": "./dist/types/index.d.ts",
+  "main": "./dist/index.js",
   "files": [
     "dist",
     "src",
@@ -27,8 +25,8 @@
   ],
   "exports": {
     ".": {
-      "import": "./dist/esm/mod.js",
-      "require": "./dist/cjs/mod.js"
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
     },
     "./package.json": "./package.json"
   },
