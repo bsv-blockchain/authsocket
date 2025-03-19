@@ -1,9 +1,10 @@
 import { createServer } from 'http'
-import { AuthSocketClient, AuthSocketServer } from '../index'
+import { AuthSocketServer } from '../AuthSocketServer'
+import { AuthSocketClient } from '@bsv/authsocket-client'
 import { ProtoWallet, PrivateKey } from '@bsv/sdk'
 
 import * as crypto from 'crypto'
-global.self = { crypto }
+(global.self as any) = { crypto }
 
 const httpServer = createServer()
 const port = 3000
@@ -23,19 +24,20 @@ io.on('connection', (socket) => {
     // broadcast to all clients:
     socket.emit('chatMessage', {
       from: socket.id,
-      text: `Hello, client!`
+      text: 'Hello, client!'
+    }).catch((error) => {
+      console.error('Error sending chatMessage:', error)
     })
-  })
 
-  socket.on('disconnect', () => {
-    console.log(`Socket ${socket.id} disconnected`)
+    socket.on('disconnect', () => {
+      console.log(`Socket ${socket.id} disconnected`)
+    })
   })
 })
 
 httpServer.listen(port, () => {
   console.log(`Server listening on port ${port}`)
 })
-
 
 // CLIENT SIDE TEST
 // 1. Create client-side wallet

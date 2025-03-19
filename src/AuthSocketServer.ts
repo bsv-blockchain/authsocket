@@ -1,7 +1,7 @@
 import { Server as HttpServer } from 'http'
-import { ServerOptions, Server as IoServer, Socket as IoSocket } from "socket.io"
-import { WalletInterface, Peer, SessionManager } from "@bsv/sdk"
-import { SocketServerTransport } from "./SocketServerTransport.js"
+import { ServerOptions, Server as IoServer, Socket as IoSocket } from 'socket.io'
+import { WalletInterface, Peer, SessionManager } from '@bsv/sdk'
+import { SocketServerTransport } from './SocketServerTransport.js'
 
 export interface AuthSocketServerOptions extends Partial<ServerOptions> {
   wallet: WalletInterface // The server's wallet for signing
@@ -109,7 +109,7 @@ export class AuthSocketServer {
     )
 
     const authSocket = new AuthSocket(socket, peer, (sockId, identityKey) => {
-      // Callback: once the AuthSocket learns identityKey from a "general" message, store it
+      // Callback: once the AuthSocket learns identityKey from a 'general' message, store it
       const info = this.peers.get(sockId)
       if (info) {
         info.identityKey = identityKey
@@ -158,7 +158,7 @@ export class AuthSocket {
      */
     private onIdentityKeyDiscovered: (socketId: string, identityKey: string) => void
   ) {
-    // Listen for "general" messages from the Peer
+    // Listen for 'general' messages from the Peer
     this.peer.listenForGeneralMessages((senderPublicKey, payload) => {
       // Capture the newly discovered identity key if not known yet
       if (!this.peerIdentityKey) {
@@ -200,7 +200,7 @@ export class AuthSocket {
   }
 
   /**
-   * The Socket.IO "id"
+   * The Socket.IO 'id'
    */
   get id(): string {
     return this.ioSocket.id
