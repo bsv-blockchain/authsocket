@@ -1,5 +1,9 @@
 # AuthSocket (server-side)
 
+> **⚠️ This repository is being archived.**
+>
+> Development has moved to the [ts-stack monorepo](https://github.com/bsv-blockchain/ts-stack/tree/main/packages/messaging/authsocket). Open issues will be migrated there. This repository will be archived in the coming days — please open new issues and PRs in the monorepo going forward.
+
 ## Overview
 
 This repository provides a **drop-in server-side solution** for Socket.IO that enforces [BRC-103](https://github.com/bitcoin-sv/BRCs/blob/master/peer-to-peer/0103.md) **mutual authentication** on all connected clients. 
